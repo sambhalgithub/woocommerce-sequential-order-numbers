@@ -198,14 +198,21 @@ class WC_Seq_Order_Number {
 				$success = false;
 
 				for ( $i = 0; $i < 3 && ! $success; $i++ ) {
+					// Generate the random order number
+					$order_count = mt_rand(111,999);
+					$order_prefix = mt_rand(111,999);
+					$order_suffix =  mt_rand(1111,9999);
 
-					// this seems to me like the safest way to avoid order number clashes
+					$custom_order_no =  $order_prefix . $order_count . $order_suffix;
+										
 					$query = $wpdb->prepare( "
 						INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value)
-						SELECT %d, '_order_number', IF( MAX( CAST( meta_value as UNSIGNED ) ) IS NULL, 1, MAX( CAST( meta_value as UNSIGNED ) ) + 1 )
+						SELECT %d, '_order_number', IF( MAX( CAST( meta_value as UNSIGNED ) ) IS NULL, $custom_order_no, $custom_order_no )
 							FROM {$wpdb->postmeta}
 							WHERE meta_key='_order_number'",
 						$post_id );
+					
+					
 
 					$success = $wpdb->query( $query );
 				}
